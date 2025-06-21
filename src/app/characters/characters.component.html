@@ -1,0 +1,61 @@
+<input
+  type="text"
+  placeholder="Buscar personaje..."
+  [(ngModel)]="searchTerm"
+  (input)="searchCharacters()"
+/>
+
+<div class="filters">
+  <select [(ngModel)]="filterStatus" (change)="updateFilters()">
+    <option value="">Estado: Todos</option>
+    <option value="alive">Alive</option>
+    <option value="dead">Dead</option>
+    <option value="unknown">Unknown</option>
+  </select>
+
+  <select [(ngModel)]="filterSpecies" (change)="updateFilters()">
+    <option value="">Especie: Todas</option>
+    <option value="Human">Human</option>
+    <option value="Alien">Alien</option>
+  </select>
+
+  <select [(ngModel)]="filterGender" (change)="updateFilters()">
+    <option value="">Género: Todos</option>
+    <option value="Male">Male</option>
+    <option value="Female">Female</option>
+    <option value="Genderless">Genderless</option>
+    <option value="unknown">Unknown</option>
+  </select>
+</div>
+
+<select [(ngModel)]="sortOption" (change)="sortCharacters()">
+  <option value="">Sin orden</option>
+  <option value="name-asc">Nombre A–Z</option>
+  <option value="name-desc">Nombre Z–A</option>
+</select>
+
+<div *ngIf="characters.length > 0; else loading" class="characters-container">
+  <div *ngFor="let character of characters" class="card">
+    <img [src]="character.image" [alt]="character.name" class="character-image" />
+    <div class="character-info">
+      <h2 class="character-name">{{ character.name }}</h2>
+      <p><strong>Status:</strong> <span [ngClass]="character.status.toLowerCase()">{{ character.status }}</span></p>
+      <p><strong>Species:</strong> {{ character.species }}</p>
+      <p><strong>Gender:</strong> {{ character.gender }}</p>
+      <p><strong>Origin:</strong> {{ character.origin.name }}</p>
+      <p><strong>Location:</strong> {{ character.location.name }}</p>
+    </div>
+  </div>
+</div>
+
+<div class="pagination">
+  <button (click)="prevPage()" [disabled]="currentPage === 1">Anterior</button>
+  <span>Página {{ currentPage }} de {{ totalPages }}</span>
+  <button (click)="nextPage()" [disabled]="currentPage === totalPages">Siguiente</button>
+</div>
+
+
+<ng-template #loading>
+  <p>Loading characters...</p>
+</ng-template>
+
