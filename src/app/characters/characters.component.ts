@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Renderer2 } from '@angular/core';
 import { RickmortyService, Character, ApiResponse } from '../services/rickmorty.service';
 
 @Component({
@@ -8,7 +8,6 @@ import { RickmortyService, Character, ApiResponse } from '../services/rickmorty.
 })
 export class CharactersComponent implements OnInit {
   characters: Character[] = [];
-  allCharacters: Character[] = [];
   favorites: Character[] = [];
   episodesNames: string[] = [];
 
@@ -26,17 +25,36 @@ export class CharactersComponent implements OnInit {
 
   showFavoritesOnly: boolean = false;
 
-  constructor(private rickmortyService: RickmortyService) {}
+  noResults: boolean = false;
+  errorLoading: boolean = false;
+
+  isDarkTheme: boolean = false;
+
+  constructor(
+    private rickmortyService: RickmortyService,
+    private renderer: Renderer2
+  ) {}
 
   ngOnInit(): void {
-    this.loadCharacters();
     this.loadFavorites();
+    this.loadCharacters();
   }
 
   loadCharacters(page: number = 1): void {
-    if (this.showFavoritesOnly) return;
+    if (this.showFavoritesOnly) {
+      this.characters = [...this.favorites];
+      this.noResults = this.characters.length === 0;
+      this.errorLoading = false;
+      this.totalPages = 1;
+      this.currentPage = 1;
+      this.sortCharacters();
+      return;
+    }
 
     this.loading = true;
+    this.errorLoading = false;
+    this.noResults = false;
+
     const filters = [];
 
     if (this.searchTerm.trim()) filters.push(`name=${this.searchTerm.trim()}`);
@@ -48,26 +66,31 @@ export class CharactersComponent implements OnInit {
 
     this.rickmortyService.getFilteredCharacters(query).subscribe({
       next: (res: ApiResponse) => {
-        this.characters = res.results;
-        this.totalPages = res.info.pages;
+        this.characters = res.results || [];
+        this.totalPages = res.info.pages || 1;
         this.currentPage = page;
         this.loading = false;
+        this.noResults = this.characters.length === 0;
         this.sortCharacters();
       },
       error: () => {
         this.characters = [];
         this.totalPages = 0;
+        this.currentPage = 1;
         this.loading = false;
+        this.errorLoading = true;
       }
     });
   }
 
   searchCharacters(): void {
-    this.loadCharacters(1);
+    this.currentPage = 1;
+    this.loadCharacters();
   }
 
   updateFilters(): void {
-    this.loadCharacters(1);
+    this.currentPage = 1;
+    this.loadCharacters();
   }
 
   prevPage(): void {
@@ -83,6 +106,7 @@ export class CharactersComponent implements OnInit {
   }
 
   sortCharacters(): void {
+    if (!this.characters) return;
     if (this.sortOption === 'name-asc') {
       this.characters.sort((a, b) => a.name.localeCompare(b.name));
     } else if (this.sortOption === 'name-desc') {
@@ -96,7 +120,7 @@ export class CharactersComponent implements OnInit {
 
     if (character.episode && character.episode.length) {
       character.episode.forEach(url => {
-        this.rickmortyService.getEpisodeByUrl(url).subscribe((ep: any) => {
+        this.rickmortyService.getEpisodeByUrl(url).subscribe(ep => {
           this.episodesNames.push(ep.name);
         });
       });
@@ -115,9 +139,12 @@ export class CharactersComponent implements OnInit {
     } else {
       this.favorites.push(character);
     }
-
     localStorage.setItem('favorites', JSON.stringify(this.favorites));
-    if (this.showFavoritesOnly) this.characters = this.favorites;
+
+    if (this.showFavoritesOnly) {
+      this.characters = [...this.favorites];
+      this.noResults = this.characters.length === 0;
+    }
   }
 
   isFavorite(character: Character): boolean {
@@ -132,9 +159,14 @@ export class CharactersComponent implements OnInit {
   toggleFavoritesView(): void {
     this.showFavoritesOnly = !this.showFavoritesOnly;
     if (this.showFavoritesOnly) {
-      this.characters = this.favorites;
+      this.characters = [...this.favorites];
+      this.noResults = this.characters.length === 0;
+      this.totalPages = 1;
+      this.currentPage = 1;
+      this.errorLoading = false;
     } else {
       this.loadCharacters();
     }
   }
+
 }
