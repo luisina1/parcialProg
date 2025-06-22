@@ -16,11 +16,20 @@ export interface Character {
   image: string;
   origin: LocationInfo;
   location: LocationInfo;
+  episode: string[];
+  created: string;
 }
 
 export interface ApiResponse {
   results: Character[];
   info: any;
+}
+
+export interface Episode {
+  id: number;
+  name: string;
+  air_date: string;
+  episode: string;
 }
 
 @Injectable({
@@ -36,12 +45,14 @@ export class RickmortyService {
   }
 
   searchCharacters(name: string, page: number = 1): Observable<ApiResponse> {
-  return this.http.get<ApiResponse>(`${this.apiURL}?name=${name}&page=${page}`);
-}
+    return this.http.get<ApiResponse>(`${this.apiURL}?name=${name}&page=${page}`);
+  }
 
-getFilteredCharacters(query: string) {
-  return this.http.get<ApiResponse>(`${this.apiURL}?${query}`);
-}
+  getFilteredCharacters(query: string): Observable<ApiResponse> {
+    return this.http.get<ApiResponse>(`${this.apiURL}?${query}`);
+  }
 
-
+  getEpisodeByUrl(url: string): Observable<Episode> {
+    return this.http.get<Episode>(url);
+  }
 }

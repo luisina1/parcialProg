@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { RickmortyService, Character, ApiResponse } from '../services/rickmorty.service';
+import { RickmortyService, Character, ApiResponse, Episode } from '../services/rickmorty.service';
+
 
 @Component({
   selector: 'app-characters',
   templateUrl: './characters.component.html',
   styleUrls: ['./characters.component.css']
 })
+
 export class CharactersComponent implements OnInit {
   characters: Character[] = [];
   searchTerm: string = '';
@@ -13,18 +15,20 @@ export class CharactersComponent implements OnInit {
   totalPages: number = 0;
   loading: boolean = false;
 
-  // Filtros
   filterStatus: string = '';
   filterSpecies: string = '';
   filterGender: string = '';
 
-  // Orden
+
   sortOption: string = '';
+  
+  selectedCharacter: Character | null = null;
+  episodesNames: string[] = [];
 
   constructor(private rickmortyService: RickmortyService) {}
 
   ngOnInit(): void {
-    this.loadCharacters(); // Carga inicial
+    this.loadCharacters();
   }
 
   loadCharacters(page: number = 1): void {
@@ -54,7 +58,7 @@ export class CharactersComponent implements OnInit {
         this.totalPages = response.info.pages;
         this.currentPage = page;
         this.loading = false;
-        this.sortCharacters(); // Aplica ordenamiento si hay uno seleccionado
+        this.sortCharacters();
       },
       error: () => {
         this.characters = [];
@@ -64,12 +68,10 @@ export class CharactersComponent implements OnInit {
     });
   }
 
-  // Se llama al cambiar el texto del input
   searchCharacters(): void {
     this.loadCharacters(1);
   }
 
-  // Se llama al cambiar algún filtro
   updateFilters(): void {
     this.loadCharacters(1);
   }
@@ -87,12 +89,28 @@ export class CharactersComponent implements OnInit {
   }
 
   sortCharacters(): void {
-  if (this.sortOption === 'name-asc') {
-    this.characters.sort((a, b) => a.name.localeCompare(b.name));
-  } else if (this.sortOption === 'name-desc') {
-    this.characters.sort((a, b) => b.name.localeCompare(a.name));
-  } else {
-    this.loadCharacters(this.currentPage); // Vuelve a cargar sin orden
+    if (this.sortOption === 'name-asc') {
+      this.characters.sort((a, b) => a.name.localeCompare(b.name));
+    } else if (this.sortOption === 'name-desc') {
+      this.characters.sort((a, b) => b.name.localeCompare(a.name));
+    }
+  }
+
+  openModal(character: Character): void {
+  this.selectedCharacter = character;
+  this.episodesNames = [];
+
+  if (character.episode && character.episode.length > 0) {
+    character.episode.forEach(url => {
+      this.rickmortyService.getEpisodeByUrl(url).subscribe((ep: Episode) => {
+        this.episodesNames.push(ep.name);
+      });
+    });
   }
 }
+
+  closeModal(): void {
+    this.selectedCharacter = null;
+    this.episodesNames = [];
+  }
 }

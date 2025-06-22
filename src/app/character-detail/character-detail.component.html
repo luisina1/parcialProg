@@ -1,0 +1,20 @@
+<div class="modal-backdrop" (click)="onClose()"></div>
+
+<div class="modal-content" (click)="$event.stopPropagation()">
+  <button class="close-btn" (click)="onClose()">×</button>
+  <h2>{{ character?.name }}</h2>
+  <img [src]="character?.image" [alt]="character?.name" />
+  <p><strong>Status:</strong> {{ character?.status }}</p>
+  <p><strong>Species:</strong> {{ character?.species }}</p>
+  <p><strong>Gender:</strong> {{ character?.gender }}</p>
+  <p><strong>Origin:</strong> {{ character?.origin?.name }}</p>
+  <p><strong>Location:</strong> {{ character?.location?.name }}</p>
+  <p><strong>Created:</strong> {{ character?.created | date }}</p>
+
+  <p><strong>Episodios:</strong></p>
+  <div class="episodes-list">
+    <ul>
+      <li *ngFor="let epName of episodes">{{ epName }}</li>
+    </ul>
+  </div>
+</div>

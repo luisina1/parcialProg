@@ -1,9 +1,11 @@
+
 <input
   type="text"
   placeholder="Buscar personaje..."
   [(ngModel)]="searchTerm"
   (input)="searchCharacters()"
 />
+
 
 <div class="filters">
   <select [(ngModel)]="filterStatus" (change)="updateFilters()">
@@ -28,14 +30,16 @@
   </select>
 </div>
 
+
 <select [(ngModel)]="sortOption" (change)="sortCharacters()">
   <option value="">Sin orden</option>
   <option value="name-asc">Nombre A–Z</option>
   <option value="name-desc">Nombre Z–A</option>
 </select>
 
+
 <div *ngIf="characters.length > 0; else loading" class="characters-container">
-  <div *ngFor="let character of characters" class="card">
+  <div *ngFor="let character of characters" class="card" (click)="openModal(character)">
     <img [src]="character.image" [alt]="character.name" class="character-image" />
     <div class="character-info">
       <h2 class="character-name">{{ character.name }}</h2>
@@ -48,6 +52,12 @@
   </div>
 </div>
 
+
+<ng-template #loading>
+  <p>Loading characters...</p>
+</ng-template>
+
+
 <div class="pagination">
   <button (click)="prevPage()" [disabled]="currentPage === 1">Anterior</button>
   <span>Página {{ currentPage }} de {{ totalPages }}</span>
@@ -55,7 +65,11 @@
 </div>
 
 
-<ng-template #loading>
-  <p>Loading characters...</p>
-</ng-template>
+<app-character-detail
+  *ngIf="selectedCharacter"
+  [character]="selectedCharacter"
+  [episodes]="episodesNames"
+  (close)="closeModal()"
+></app-character-detail>
+
 
