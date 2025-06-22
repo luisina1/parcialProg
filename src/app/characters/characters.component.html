@@ -1,4 +1,9 @@
+<!-- Botón para alternar entre todos y favoritos -->
+<button (click)="toggleFavoritesView()">
+  {{ showFavoritesOnly ? 'Ver todos' : 'Ver favoritos' }}
+</button>
 
+<!-- Input de búsqueda -->
 <input
   type="text"
   placeholder="Buscar personaje..."
@@ -6,22 +11,22 @@
   (input)="searchCharacters()"
 />
 
-
+<!-- Filtros -->
 <div class="filters">
-  <select [(ngModel)]="filterStatus" (change)="updateFilters()">
+  <select [(ngModel)]="filterStatus" (change)="updateFilters()" [disabled]="showFavoritesOnly">
     <option value="">Estado: Todos</option>
     <option value="alive">Alive</option>
     <option value="dead">Dead</option>
     <option value="unknown">Unknown</option>
   </select>
 
-  <select [(ngModel)]="filterSpecies" (change)="updateFilters()">
+  <select [(ngModel)]="filterSpecies" (change)="updateFilters()" [disabled]="showFavoritesOnly">
     <option value="">Especie: Todas</option>
     <option value="Human">Human</option>
     <option value="Alien">Alien</option>
   </select>
 
-  <select [(ngModel)]="filterGender" (change)="updateFilters()">
+  <select [(ngModel)]="filterGender" (change)="updateFilters()" [disabled]="showFavoritesOnly">
     <option value="">Género: Todos</option>
     <option value="Male">Male</option>
     <option value="Female">Female</option>
@@ -30,17 +35,28 @@
   </select>
 </div>
 
-
-<select [(ngModel)]="sortOption" (change)="sortCharacters()">
+<!-- Orden -->
+<select [(ngModel)]="sortOption" (change)="sortCharacters()" [disabled]="showFavoritesOnly">
   <option value="">Sin orden</option>
   <option value="name-asc">Nombre A–Z</option>
   <option value="name-desc">Nombre Z–A</option>
 </select>
 
-
-<div *ngIf="characters.length > 0; else loading" class="characters-container">
+<!-- Lista de personajes -->
+<div *ngIf="characters.length > 0; else loadingTemplate" class="characters-container">
   <div *ngFor="let character of characters" class="card" (click)="openModal(character)">
-    <img [src]="character.image" [alt]="character.name" class="character-image" />
+    <div class="card-left">
+      <img [src]="character.image" [alt]="character.name" class="character-image" />
+      <button
+        (click)="toggleFavorite(character); $event.stopPropagation()"
+        class="favorite-btn"
+        aria-label="Toggle favorite"
+      >
+        <span *ngIf="isFavorite(character); else notFavorite" class="filled-heart">❤️</span>
+        <ng-template #notFavorite>🤍</ng-template>
+      </button>
+    </div>
+
     <div class="character-info">
       <h2 class="character-name">{{ character.name }}</h2>
       <p><strong>Status:</strong> <span [ngClass]="character.status.toLowerCase()">{{ character.status }}</span></p>
@@ -52,24 +68,22 @@
   </div>
 </div>
 
-
-<ng-template #loading>
+<!-- Template loading -->
+<ng-template #loadingTemplate>
   <p>Loading characters...</p>
 </ng-template>
 
-
-<div class="pagination">
+<!-- Paginación -->
+<div class="pagination" *ngIf="!showFavoritesOnly">
   <button (click)="prevPage()" [disabled]="currentPage === 1">Anterior</button>
   <span>Página {{ currentPage }} de {{ totalPages }}</span>
   <button (click)="nextPage()" [disabled]="currentPage === totalPages">Siguiente</button>
 </div>
 
-
+<!-- Modal -->
 <app-character-detail
   *ngIf="selectedCharacter"
   [character]="selectedCharacter"
   [episodes]="episodesNames"
   (close)="closeModal()"
 ></app-character-detail>
-
-

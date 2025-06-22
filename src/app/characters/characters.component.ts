@@ -1,15 +1,17 @@
 import { Component, OnInit } from '@angular/core';
-import { RickmortyService, Character, ApiResponse, Episode } from '../services/rickmorty.service';
-
+import { RickmortyService, Character, ApiResponse } from '../services/rickmorty.service';
 
 @Component({
   selector: 'app-characters',
   templateUrl: './characters.component.html',
   styleUrls: ['./characters.component.css']
 })
-
 export class CharactersComponent implements OnInit {
   characters: Character[] = [];
+  allCharacters: Character[] = [];
+  favorites: Character[] = [];
+  episodesNames: string[] = [];
+
   searchTerm: string = '';
   currentPage: number = 1;
   totalPages: number = 0;
@@ -18,44 +20,36 @@ export class CharactersComponent implements OnInit {
   filterStatus: string = '';
   filterSpecies: string = '';
   filterGender: string = '';
-
-
   sortOption: string = '';
-  
+
   selectedCharacter: Character | null = null;
-  episodesNames: string[] = [];
+
+  showFavoritesOnly: boolean = false;
 
   constructor(private rickmortyService: RickmortyService) {}
 
   ngOnInit(): void {
     this.loadCharacters();
+    this.loadFavorites();
   }
 
   loadCharacters(page: number = 1): void {
-    this.loading = true;
+    if (this.showFavoritesOnly) return;
 
+    this.loading = true;
     const filters = [];
 
-    if (this.searchTerm.trim() !== '') {
-      filters.push(`name=${this.searchTerm.trim()}`);
-    }
-    if (this.filterStatus) {
-      filters.push(`status=${this.filterStatus}`);
-    }
-    if (this.filterSpecies) {
-      filters.push(`species=${this.filterSpecies}`);
-    }
-    if (this.filterGender) {
-      filters.push(`gender=${this.filterGender}`);
-    }
-
+    if (this.searchTerm.trim()) filters.push(`name=${this.searchTerm.trim()}`);
+    if (this.filterStatus) filters.push(`status=${this.filterStatus}`);
+    if (this.filterSpecies) filters.push(`species=${this.filterSpecies}`);
+    if (this.filterGender) filters.push(`gender=${this.filterGender}`);
     filters.push(`page=${page}`);
     const query = filters.join('&');
 
     this.rickmortyService.getFilteredCharacters(query).subscribe({
-      next: (response: ApiResponse) => {
-        this.characters = response.results;
-        this.totalPages = response.info.pages;
+      next: (res: ApiResponse) => {
+        this.characters = res.results;
+        this.totalPages = res.info.pages;
         this.currentPage = page;
         this.loading = false;
         this.sortCharacters();
@@ -97,20 +91,50 @@ export class CharactersComponent implements OnInit {
   }
 
   openModal(character: Character): void {
-  this.selectedCharacter = character;
-  this.episodesNames = [];
+    this.selectedCharacter = character;
+    this.episodesNames = [];
 
-  if (character.episode && character.episode.length > 0) {
-    character.episode.forEach(url => {
-      this.rickmortyService.getEpisodeByUrl(url).subscribe((ep: Episode) => {
-        this.episodesNames.push(ep.name);
+    if (character.episode && character.episode.length) {
+      character.episode.forEach(url => {
+        this.rickmortyService.getEpisodeByUrl(url).subscribe((ep: any) => {
+          this.episodesNames.push(ep.name);
+        });
       });
-    });
+    }
   }
-}
 
   closeModal(): void {
     this.selectedCharacter = null;
     this.episodesNames = [];
+  }
+
+  toggleFavorite(character: Character): void {
+    const exists = this.favorites.find(fav => fav.id === character.id);
+    if (exists) {
+      this.favorites = this.favorites.filter(fav => fav.id !== character.id);
+    } else {
+      this.favorites.push(character);
+    }
+
+    localStorage.setItem('favorites', JSON.stringify(this.favorites));
+    if (this.showFavoritesOnly) this.characters = this.favorites;
+  }
+
+  isFavorite(character: Character): boolean {
+    return this.favorites.some(fav => fav.id === character.id);
+  }
+
+  loadFavorites(): void {
+    const stored = localStorage.getItem('favorites');
+    this.favorites = stored ? JSON.parse(stored) : [];
+  }
+
+  toggleFavoritesView(): void {
+    this.showFavoritesOnly = !this.showFavoritesOnly;
+    if (this.showFavoritesOnly) {
+      this.characters = this.favorites;
+    } else {
+      this.loadCharacters();
+    }
   }
 }
