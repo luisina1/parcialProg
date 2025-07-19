@@ -1,2 +1,10 @@
-<!--<h1>Rick and Morty Characters</h1>-->
-<app-characters></app-characters>
+<div *ngIf="user$ | async as user; else showLogin">
+  <p>Hola {{ user.email }}!</p>
+  <button (click)="auth.logout()">Salir</button>
+
+  <app-characters></app-characters>
+</div>
+
+<ng-template #showLogin>
+  <app-login></app-login>
+</ng-template>

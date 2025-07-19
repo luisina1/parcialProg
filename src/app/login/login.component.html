@@ -1,0 +1,9 @@
+<form [formGroup]="form" (ngSubmit)="login()">
+  <input type="email" formControlName="email" placeholder="Email" />
+  <input type="password" formControlName="password" placeholder="Password" />
+  
+  <button type="submit" [disabled]="form.invalid">Entrar</button>
+  <button type="button" (click)="register()" [disabled]="form.invalid">Registrarse</button>
+
+  <p *ngIf="errorMessage" style="color:red;">{{ errorMessage }}</p>
+</form>
