@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
@@ -8,32 +8,37 @@ import { LoginComponent } from './login/login.component';
 import { CharacterDetailComponent } from './character-detail/character-detail.component';
 import { CharactersComponent } from './characters/characters.component';
 
+import { ResetPasswordComponent } from './components/reset-password.component';
+import { ChangePasswordComponent } from './components/change-password.component';
+
 import { AngularFireModule } from '@angular/fire/compat';
 import { AngularFireAuthModule } from '@angular/fire/compat/auth';
 import { AngularFirestoreModule } from '@angular/fire/compat/firestore';
 
 import { environment } from '../environments/environment';
 
-import { FormsModule } from '@angular/forms';
+import { AppRoutingModule } from './app-routing.module';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
     CharacterDetailComponent,
-    CharactersComponent
+    CharactersComponent,
+    ResetPasswordComponent,
+    ChangePasswordComponent
   ],
   imports: [
     BrowserModule,
     ReactiveFormsModule,
-     FormsModule,  
+    FormsModule,
     HttpClientModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireAuthModule,
+    AppRoutingModule,
     AngularFirestoreModule
   ],
   providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
-

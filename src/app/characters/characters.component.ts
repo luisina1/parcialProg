@@ -1,5 +1,10 @@
 import { Component, OnInit, Renderer2 } from '@angular/core';
 import { RickmortyService, Character, ApiResponse } from '../services/rickmorty.service';
+import { FavoritesService } from '../services/favorites.service';
+import { AuthService } from '../services/auth.service';
+import { Observable } from 'rxjs';
+import firebase from 'firebase/compat/app';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-characters',
@@ -7,8 +12,12 @@ import { RickmortyService, Character, ApiResponse } from '../services/rickmorty.
   styleUrls: ['./characters.component.css']
 })
 export class CharactersComponent implements OnInit {
+  user$: Observable<firebase.User | null>;
+  userEmail: string | null = null;
+
   characters: Character[] = [];
   favorites: Character[] = [];
+  favoritesIds = new Set<number>();
   episodesNames: string[] = [];
 
   searchTerm: string = '';
@@ -32,11 +41,28 @@ export class CharactersComponent implements OnInit {
 
   constructor(
     private rickmortyService: RickmortyService,
-    private renderer: Renderer2
-  ) {}
+    private favoritesService: FavoritesService,
+    private renderer: Renderer2,
+    private authService: AuthService,
+    private router: Router
+  ) {
+    this.user$ = this.authService.user$;
+  }
 
   ngOnInit(): void {
-    this.loadFavorites();
+    this.user$.subscribe(user => {
+      this.userEmail = user ? user.email : null;
+    });
+
+    this.favoritesService.favorites$.subscribe(favs => {
+      this.favorites = favs;
+      this.favoritesIds = new Set(favs.map(f => f.id));
+      if (this.showFavoritesOnly) {
+        this.characters = [...this.favorites];
+        this.noResults = this.characters.length === 0;
+      }
+    });
+
     this.loadCharacters();
   }
 
@@ -133,27 +159,15 @@ export class CharactersComponent implements OnInit {
   }
 
   toggleFavorite(character: Character): void {
-    const exists = this.favorites.find(fav => fav.id === character.id);
-    if (exists) {
-      this.favorites = this.favorites.filter(fav => fav.id !== character.id);
+    if (this.favoritesIds.has(character.id)) {
+      this.favoritesService.removeFavorite(character.id).catch(console.error);
     } else {
-      this.favorites.push(character);
-    }
-    localStorage.setItem('favorites', JSON.stringify(this.favorites));
-
-    if (this.showFavoritesOnly) {
-      this.characters = [...this.favorites];
-      this.noResults = this.characters.length === 0;
+      this.favoritesService.addFavorite(character).catch(console.error);
     }
   }
 
   isFavorite(character: Character): boolean {
-    return this.favorites.some(fav => fav.id === character.id);
-  }
-
-  loadFavorites(): void {
-    const stored = localStorage.getItem('favorites');
-    this.favorites = stored ? JSON.parse(stored) : [];
+    return this.favoritesIds.has(character.id);
   }
 
   toggleFavoritesView(): void {
@@ -169,4 +183,9 @@ export class CharactersComponent implements OnInit {
     }
   }
 
+  logout(): void {
+    this.authService.logout()
+      .then(() => this.router.navigate(['/login']))
+      .catch(console.error);
+  }
 }

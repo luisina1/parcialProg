@@ -23,4 +23,20 @@ export class AuthService {
   logout() {
     return this.afAuth.signOut();
   }
+
+  // Enviar email para resetear contraseña
+  resetPassword(email: string) {
+    return this.afAuth.sendPasswordResetEmail(email);
+  }
+
+  // Cambiar contraseña del usuario actual
+  changePassword(newPassword: string) {
+    return this.afAuth.currentUser.then(user => {
+      if (user) {
+        return user.updatePassword(newPassword);
+      } else {
+        return Promise.reject('No hay usuario autenticado');
+      }
+    });
+  }
 }

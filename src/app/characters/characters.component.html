@@ -1,3 +1,9 @@
+<!-- Barra superior con usuario y botón salir -->
+<div class="auth-info">
+  <p>Hola {{ userEmail }}</p>
+  <button (click)="logout()">Salir</button>
+</div>
+
 <h1 class="page-title">Rick and Morty Characters</h1> 
 
 <!-- Botón para alternar entre todos y favoritos -->
@@ -44,8 +50,6 @@
   <option value="name-asc">Nombre A–Z</option>
   <option value="name-desc">Nombre Z–A</option>
 </select>
-
-
 
 <!-- Lista de personajes -->
 <ng-container *ngIf="!loading; else loadingTemplate">
@@ -95,7 +99,7 @@
   <button class="btn" (click)="nextPage()" [disabled]="currentPage === totalPages">Siguiente</button>
 </div>
 
-<!-- Modal -->
+<!-- Modal de detalle de personaje -->
 <app-character-detail
   *ngIf="selectedCharacter"
   [character]="selectedCharacter"

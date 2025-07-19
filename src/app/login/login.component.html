@@ -6,4 +6,9 @@
   <button type="button" (click)="register()" [disabled]="form.invalid">Registrarse</button>
 
   <p *ngIf="errorMessage" style="color:red;">{{ errorMessage }}</p>
+
+  <p>
+  <a routerLink="/reset-password">¿Olvidaste tu contraseña?</a>
+</p>
+
 </form>
