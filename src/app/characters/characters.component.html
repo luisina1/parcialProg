@@ -1,17 +1,25 @@
-<!-- Barra superior con usuario y botón salir -->
-<div class="auth-info">
-  <p>Hola {{ userEmail }}</p>
-  <button (click)="logout()">Salir</button>
+<header class="top-bar">
+  <button class="logout-btn" (click)="logout()">Salir</button>
+  <div class="auth-info">
+    <p>Hola {{ userEmail }}</p>
+  </div>
+</header>
+
+<div *ngIf="profile?.photoURL" style="margin-top: 10px;">
+  <img [src]="profile?.photoURL" alt="Foto de perfil"
+       style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;" />
 </div>
 
 <h1 class="page-title">Rick and Morty Characters</h1> 
 
-<!-- Botón para alternar entre todos y favoritos -->
 <button class="btn toggle-favorites-btn" (click)="toggleFavoritesView()">
   {{ showFavoritesOnly ? 'Ver todos' : 'Ver favoritos' }}
 </button>
 
-<!-- Input de búsqueda -->
+<button class="btn" routerLink="/profile" style="margin-bottom: 1rem;">
+  Ver mi perfil
+</button>
+
 <input
   class="search-input"
   type="text"
@@ -20,7 +28,6 @@
   (input)="searchCharacters()"
 />
 
-<!-- Filtros -->
 <div class="filters">
   <select [(ngModel)]="filterStatus" (change)="updateFilters()" [disabled]="showFavoritesOnly">
     <option value="">Estado: Todos</option>
@@ -44,14 +51,12 @@
   </select>
 </div>
 
-<!-- Orden -->
 <select [(ngModel)]="sortOption" (change)="sortCharacters()" [disabled]="showFavoritesOnly" class="filters-select">
   <option value="">✨ Sin orden</option>
   <option value="name-asc">Nombre A–Z</option>
   <option value="name-desc">Nombre Z–A</option>
 </select>
 
-<!-- Lista de personajes -->
 <ng-container *ngIf="!loading; else loadingTemplate">
   <ng-container *ngIf="characters.length > 0; else noResultsTemplate">
     <div class="characters-container">
@@ -75,6 +80,15 @@
           <p><strong>Gender:</strong> {{ character.gender }}</p>
           <p><strong>Origin:</strong> {{ character.origin.name }}</p>
           <p><strong>Location:</strong> {{ character.location.name }}</p>
+        </div>
+
+        <!-- textarea para nota, solo si estamos en vista favoritos -->
+        <div *ngIf="showFavoritesOnly" class="favorite-note" (click)="$event.stopPropagation()">
+          <textarea
+            [(ngModel)]="character.note"
+            placeholder="Agrega una nota..."
+            (change)="onNoteChange(character, character.note || '')"
+          ></textarea>
         </div>
       </div>
     </div>

@@ -9,7 +9,7 @@ export class AuthService {
   user$: Observable<any>;
 
   constructor(private afAuth: AngularFireAuth) {
-    this.user$ = this.afAuth.authState; // Observable que indica si hay usuario logueado o no
+    this.user$ = this.afAuth.authState; 
   }
 
   login(email: string, password: string) {
@@ -24,12 +24,12 @@ export class AuthService {
     return this.afAuth.signOut();
   }
 
-  // Enviar email para resetear contraseña
+
   resetPassword(email: string) {
     return this.afAuth.sendPasswordResetEmail(email);
   }
 
-  // Cambiar contraseña del usuario actual
+
   changePassword(newPassword: string) {
     return this.afAuth.currentUser.then(user => {
       if (user) {

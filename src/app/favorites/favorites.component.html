@@ -1,0 +1,13 @@
+<div *ngIf="(favorites$ | async)?.length === 0">
+  <p>No tienes personajes favoritos.</p>
+</div>
+
+<div *ngFor="let fav of favorites$ | async" class="favorite-card">
+  <h3>{{ fav.name }}</h3>
+  <textarea
+    [value]="fav.note || ''"
+    (change)="onNoteChange(fav, $event.target.value)"
+    placeholder="Agrega una nota...">
+  </textarea>
+  <button (click)="removeFavorite(fav.id)">Eliminar favorito</button>
+</div>

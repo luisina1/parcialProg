@@ -3,8 +3,10 @@ import { RickmortyService, Character, ApiResponse } from '../services/rickmorty.
 import { FavoritesService } from '../services/favorites.service';
 import { AuthService } from '../services/auth.service';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import firebase from 'firebase/compat/app';
 import { Router } from '@angular/router';
+import { ProfileService, UserProfile } from '../services/profile.service';
 
 @Component({
   selector: 'app-characters',
@@ -14,6 +16,7 @@ import { Router } from '@angular/router';
 export class CharactersComponent implements OnInit {
   user$: Observable<firebase.User | null>;
   userEmail: string | null = null;
+  profile: UserProfile | null = null;
 
   characters: Character[] = [];
   favorites: Character[] = [];
@@ -43,6 +46,7 @@ export class CharactersComponent implements OnInit {
     private rickmortyService: RickmortyService,
     private favoritesService: FavoritesService,
     private renderer: Renderer2,
+    private profileService: ProfileService,
     private authService: AuthService,
     private router: Router
   ) {
@@ -52,6 +56,12 @@ export class CharactersComponent implements OnInit {
   ngOnInit(): void {
     this.user$.subscribe(user => {
       this.userEmail = user ? user.email : null;
+    });
+
+    this.profileService.getUserProfile().pipe(
+      map(profile => profile ?? null)
+    ).subscribe(profile => {
+      this.profile = profile;
     });
 
     this.favoritesService.favorites$.subscribe(favs => {
@@ -188,4 +198,11 @@ export class CharactersComponent implements OnInit {
       .then(() => this.router.navigate(['/login']))
       .catch(console.error);
   }
+
+  onNoteChange(character: Character, newNote: string) {
+    this.favoritesService.updateNote(character.id, newNote)
+      .then(() => console.log(`Nota guardada para ${character.name}`))
+      .catch(console.error);
+  }
 }
+

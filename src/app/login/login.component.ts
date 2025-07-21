@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';  // <-- Importar Router
+import { Router } from '@angular/router';  
 
 @Component({
   selector: 'app-login',
@@ -14,7 +14,7 @@ export class LoginComponent {
   constructor(
     private auth: AuthService,
     private fb: FormBuilder,
-    private router: Router  // <-- Inyectar Router
+    private router: Router  
   ) {
     this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -28,7 +28,7 @@ export class LoginComponent {
       this.auth.login(email, password)
         .then(() => {
           this.errorMessage = '';
-          this.router.navigate(['/characters']);  // <-- Redirigir aquí
+          this.router.navigate(['/characters']);  
         })
         .catch(err => {
           this.errorMessage = err.message;
@@ -42,7 +42,7 @@ export class LoginComponent {
       this.auth.register(email, password)
         .then(() => {
           this.errorMessage = '';
-          this.router.navigate(['/characters']); // También podés redirigir al registrar
+          this.router.navigate(['/characters']); 
         })
         .catch(err => {
           this.errorMessage = err.message;

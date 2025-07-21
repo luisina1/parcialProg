@@ -1,0 +1,49 @@
+/* favorites.component.css */
+
+.favorite-card {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+  background-color: #f9f9f9;
+  box-shadow: 1px 1px 5px rgba(0,0,0,0.1);
+}
+
+.favorite-card h3 {
+  margin: 0 0 8px 0;
+  font-size: 1.2em;
+  color: #333;
+}
+
+.favorite-card textarea {
+  width: 100%;
+  min-height: 60px;
+  resize: vertical;
+  padding: 8px;
+  font-size: 1em;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  font-family: inherit;
+  margin-bottom: 8px;
+  transition: border-color 0.2s ease;
+}
+
+.favorite-card textarea:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+.favorite-card button {
+  background-color: #dc3545; /* rojo */
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: background-color 0.3s ease;
+}
+
+.favorite-card button:hover {
+  background-color: #b52a37;
+}

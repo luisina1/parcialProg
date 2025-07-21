@@ -1,0 +1,31 @@
+<div *ngIf="loading">Cargando perfil...</div>
+<div *ngIf="!loading">
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <label>
+    Nombre:
+    <input [(ngModel)]="profile.displayName" placeholder="Tu nombre" />
+  </label>
+
+  <label>
+    Foto URL:
+    <input [(ngModel)]="profile.photoURL" placeholder="URL de tu foto" />
+  </label>
+
+  <div *ngIf="profile.photoURL">
+    <p>Vista previa:</p>
+    <img [src]="profile.photoURL" alt="Foto de perfil" style="max-width: 200px; max-height: 200px; border-radius: 8px;" />
+  </div>
+
+  <label>
+    Bio:
+    <textarea [(ngModel)]="profile.bio" placeholder="Una breve biografía"></textarea>
+  </label>
+
+  <button (click)="saveProfile()">Guardar</button>
+  <button (click)="deleteProfile()">Eliminar perfil</button>
+  <button (click)="deleteAccount()" style="background-color: #e74c3c; color: white;">
+  Eliminar cuenta
+</button>
+
+</div>

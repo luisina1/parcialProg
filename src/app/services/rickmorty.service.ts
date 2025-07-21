@@ -18,6 +18,7 @@ export interface Character {
   location: LocationInfo;
   episode: string[];
   created: string;
+  note?: string
 }
 
 export interface ApiResponse {
