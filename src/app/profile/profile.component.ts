@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { ProfileService, UserProfile } from '../services/profile.service';
-import { Router } from '@angular/router';  
 
 @Component({
   selector: 'app-profile',
@@ -12,14 +12,21 @@ export class ProfileComponent implements OnInit {
   loading = true;
   error = '';
 
-  constructor(private profileService: ProfileService, private router: Router) {} 
+  constructor(
+    private profileService: ProfileService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
-    this.profileService.getUserProfile().subscribe(profile => {
-      if (profile) {
-        this.profile = profile;
+    this.profileService.getUserProfile().subscribe({
+      next: (data) => {
+        if (data) this.profile = data;
+        this.loading = false;
+      },
+      error: (err) => {
+        this.error = err.message;
+        this.loading = false;
       }
-      this.loading = false;
     });
   }
 
@@ -27,34 +34,34 @@ export class ProfileComponent implements OnInit {
     this.profileService.updateUserProfile(this.profile)
       .then(() => {
         alert('Perfil actualizado con éxito');
-        this.router.navigate(['/characters']); 
+        this.router.navigate(['/characters']);
       })
-      .catch((err: any) => this.error = err.message);
+      .catch(err => this.error = err.message);
   }
 
   deleteProfile(): void {
-    if (confirm('¿Estás segura que querés borrar tu perfil? Esta acción no se puede deshacer.')) {
-      this.profileService.deleteUserProfile()
-        .then(() => {
-          alert('Perfil eliminado');
-          this.profile = { displayName: '', photoURL: '', bio: '' };
-          this.router.navigate(['/characters']); 
-        })
-        .catch((err: any) => this.error = err.message);
-    }
+    if (!confirm('¿Estás segura que querés borrar tu perfil? Esta acción no se puede deshacer.')) return;
+
+    this.profileService.deleteUserProfile()
+      .then(() => {
+        alert('Perfil eliminado');
+        this.profile = { displayName: '', photoURL: '', bio: '' };
+        this.router.navigate(['/characters']);
+      })
+      .catch(err => this.error = err.message);
   }
 
   deleteAccount(): void {
-    if (confirm('¿Estás segura que querés eliminar tu cuenta? Esta acción es irreversible.')) {
-      this.profileService.deleteUserAccount()
-        .then(() => {
-          alert('Cuenta eliminada correctamente.');
-          this.router.navigate(['/login']); // Redirige al login o página principal
-        })
-        .catch((err: any) => {
-          this.error = err.message;
-          alert('Error al eliminar la cuenta: ' + err.message);
-        });
-    }
+    if (!confirm('¿Estás segura que querés eliminar tu cuenta? Esta acción es irreversible.')) return;
+
+    this.profileService.deleteUserAccount()
+      .then(() => {
+        alert('Cuenta eliminada correctamente.');
+        this.router.navigate(['/login']);
+      })
+      .catch(err => {
+        this.error = err.message;
+        alert('Error al eliminar la cuenta: ' + err.message);
+      });
   }
 }

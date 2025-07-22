@@ -1,31 +1,35 @@
 <div *ngIf="loading">Cargando perfil...</div>
+
 <div *ngIf="!loading">
   <div *ngIf="error" class="error">{{ error }}</div>
 
-  <label>
-    Nombre:
-    <input [(ngModel)]="profile.displayName" placeholder="Tu nombre" />
-  </label>
+  <form (ngSubmit)="saveProfile()" #profileForm="ngForm">
+    <label>
+      Nombre:
+      <input [(ngModel)]="profile.displayName" name="displayName" placeholder="Tu nombre" required />
+    </label>
 
-  <label>
-    Foto URL:
-    <input [(ngModel)]="profile.photoURL" placeholder="URL de tu foto" />
-  </label>
+    <label>
+      Foto URL:
+      <input [(ngModel)]="profile.photoURL" name="photoURL" placeholder="URL de tu foto" />
+    </label>
 
-  <div *ngIf="profile.photoURL">
-    <p>Vista previa:</p>
-    <img [src]="profile.photoURL" alt="Foto de perfil" style="max-width: 200px; max-height: 200px; border-radius: 8px;" />
-  </div>
+    <div *ngIf="profile.photoURL" style="text-align: center;">
+      <p>Vista previa:</p>
+      <img [src]="profile.photoURL" alt="Foto de perfil" class="profile-photo form-size" />
+    </div>
 
-  <label>
-    Bio:
-    <textarea [(ngModel)]="profile.bio" placeholder="Una breve biografía"></textarea>
-  </label>
+    <label>
+      Bio:
+      <textarea [(ngModel)]="profile.bio" name="bio" placeholder="Una breve biografía"></textarea>
+    </label>
 
-  <button (click)="saveProfile()">Guardar</button>
+    <button type="submit">Guardar</button>
+  </form>
+
   <button (click)="deleteProfile()">Eliminar perfil</button>
-  <button (click)="deleteAccount()" style="background-color: #e74c3c; color: white;">
-  Eliminar cuenta
-</button>
 
+  <button (click)="deleteAccount()" style="background-color: #e74c3c; color: white;">
+    Eliminar cuenta
+  </button>
 </div>

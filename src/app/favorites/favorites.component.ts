@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { FavoritesService, Character } from '../services/favorites.service';
+import { FavoritesService } from '../services/favorites.service';
+import { Character } from '../services/rickmorty.service';
 import { Observable } from 'rxjs';
 
 @Component({
@@ -9,16 +10,28 @@ import { Observable } from 'rxjs';
 })
 export class FavoritesComponent implements OnInit {
   favorites$: Observable<Character[]>;
+  noteValues: { [characterId: number]: string } = {};
 
   constructor(private favoritesService: FavoritesService) {
     this.favorites$ = this.favoritesService.favorites$;
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.favorites$.subscribe(favorites => {
+      favorites.forEach(fav => {
+        this.favoritesService.getNote(fav.id).subscribe(note => {
+          this.noteValues[fav.id] = note ?? '';
+        });
+      });
+    });
+  }
 
   onNoteChange(character: Character, newNote: string) {
-    this.favoritesService.updateFavorite(character.id, { note: newNote })
-      .then(() => console.log(`Nota actualizada para ${character.name}`))
+    this.favoritesService.updateNote(character.id, newNote)
+      .then(() => {
+        this.noteValues[character.id] = newNote;
+        console.log(`Nota actualizada para ${character.name}`);
+      })
       .catch(err => console.error(err));
   }
 

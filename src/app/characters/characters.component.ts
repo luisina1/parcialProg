@@ -42,6 +42,9 @@ export class CharactersComponent implements OnInit {
 
   isDarkTheme: boolean = false;
 
+  // Este objeto guarda las notas cargadas localmente para mostrar y editar
+  noteValues: { [characterId: number]: string } = {};
+
   constructor(
     private rickmortyService: RickmortyService,
     private favoritesService: FavoritesService,
@@ -67,6 +70,14 @@ export class CharactersComponent implements OnInit {
     this.favoritesService.favorites$.subscribe(favs => {
       this.favorites = favs;
       this.favoritesIds = new Set(favs.map(f => f.id));
+
+      // Cargo las notas para los favoritos actuales
+      favs.forEach(fav => {
+        this.favoritesService.getNote(fav.id).subscribe(note => {
+          this.noteValues[fav.id] = note ?? '';
+        });
+      });
+
       if (this.showFavoritesOnly) {
         this.characters = [...this.favorites];
         this.noResults = this.characters.length === 0;
@@ -170,9 +181,16 @@ export class CharactersComponent implements OnInit {
 
   toggleFavorite(character: Character): void {
     if (this.favoritesIds.has(character.id)) {
+      // Quitar favorito, NO borramos nota para mantenerla
       this.favoritesService.removeFavorite(character.id).catch(console.error);
     } else {
-      this.favoritesService.addFavorite(character).catch(console.error);
+      // Agregar favorito
+      this.favoritesService.addFavorite(character).then(() => {
+        // Cargar nota para mostrarla al agregar favorito
+        this.favoritesService.getNote(character.id).subscribe(note => {
+          this.noteValues[character.id] = note ?? '';
+        });
+      }).catch(console.error);
     }
   }
 

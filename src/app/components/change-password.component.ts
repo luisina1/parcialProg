@@ -17,8 +17,16 @@ export class ChangePasswordComponent {
     this.message = '';
     this.error = '';
 
+    if (!this.newPassword.trim()) {
+      this.error = 'La contraseña no puede estar vacía.';
+      return;
+    }
+
     this.authService.changePassword(this.newPassword)
-      .then(() => this.message = 'Contraseña actualizada correctamente.')
+      .then(() => {
+        this.message = 'Contraseña actualizada correctamente.';
+        this.newPassword = '';
+      })
       .catch(err => this.error = err.message);
   }
 }

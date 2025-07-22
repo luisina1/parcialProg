@@ -5,9 +5,10 @@
 <div *ngFor="let fav of favorites$ | async" class="favorite-card">
   <h3>{{ fav.name }}</h3>
   <textarea
-    [value]="fav.note || ''"
-    (change)="onNoteChange(fav, $event.target.value)"
+    [(ngModel)]="noteValues[fav.id]"
+    (ngModelChange)="onNoteChange(fav, $event)"
     placeholder="Agrega una nota...">
   </textarea>
   <button (click)="removeFavorite(fav.id)">Eliminar favorito</button>
 </div>
+

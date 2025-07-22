@@ -17,8 +17,16 @@ export class ResetPasswordComponent {
     this.message = '';
     this.error = '';
 
+    if (!this.email.trim()) {
+      this.error = 'Por favor, ingrese un email válido.';
+      return;
+    }
+
     this.authService.resetPassword(this.email)
-      .then(() => this.message = 'Email enviado con instrucciones para restablecer la contraseña.')
+      .then(() => {
+        this.message = 'Email enviado con instrucciones para restablecer la contraseña.';
+        this.email = '';
+      })
       .catch(err => this.error = err.message);
   }
 }
